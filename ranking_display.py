@@ -1,6 +1,6 @@
 from PySide6.QtWidgets import (
     QDialog, QVBoxLayout, QLabel, QTableWidget,
-    QTableWidgetItem, QPushButton, QHBoxLayout, QWidget, QSizePolicy, QAbstractItemView
+    QTableWidgetItem, QPushButton, QHBoxLayout, QWidget, QSizePolicy, QAbstractItemView, QApplication
 )
 from PySide6.QtGui import QPixmap
 from PySide6.QtCore import Qt
@@ -89,6 +89,19 @@ class RankingDialog(QDialog):
         btn_layout.addWidget(btn_close)
 
         layout.addLayout(btn_layout)
+        
+        # Redefine table width & height to show all info - MAX VALUES 0.75 display_height | 0.75 display_width
+        total_width = sum([self.table.columnWidth(i) for i in range(self.table.columnCount())])
+        total_width += self.table.verticalScrollBar().sizeHint().width() + 40  # Add space for scrollbar and padding
+
+        total_height = self.table.horizontalHeader().height() + sum([self.table.rowHeight(i) for i in range(self.table.rowCount())])
+        total_height += self.table.horizontalScrollBar().sizeHint().height() + 100  # For buttons and title padding
+        
+        screen_geom = QApplication.primaryScreen().availableGeometry()
+        max_width = int(screen_geom.width() * 0.75)
+        max_height = int(screen_geom.height() * 0.75)
+        
+        self.resize(min(max_width, total_width), min(max_height, total_height))
 
 
 class HistoryDialog(QDialog):
@@ -164,5 +177,20 @@ class HistoryDialog(QDialog):
         btn_layout.addWidget(btn_close)
 
         layout.addLayout(btn_layout)
+        
+        # Redefine table width & height to show all info - MAX VALUES 0.75 display_height | 0.75 display_width
+        total_width = sum([self.table.columnWidth(i) for i in range(self.table.columnCount())])
+        total_width += self.table.verticalScrollBar().sizeHint().width() + 40  # Add space for scrollbar and padding
+
+        total_height = self.table.horizontalHeader().height() + sum([self.table.rowHeight(i) for i in range(self.table.rowCount())])
+        total_height += self.table.horizontalScrollBar().sizeHint().height() + 100  # For buttons and title padding
+        
+        screen_geom = QApplication.primaryScreen().availableGeometry()
+        max_width = int(screen_geom.width() * 0.75)
+        max_height = int(screen_geom.height() * 0.75)
+        
+        self.resize(min(max_width, total_width), min(max_height, total_height))
+        
+
         
 
