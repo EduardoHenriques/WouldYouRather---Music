@@ -87,7 +87,7 @@ class ClickableTrackWidget(QWidget):
             track.load_image()
         self.background_pixmap = track.image_pixmap if track.image_pixmap and not track.image_pixmap.isNull() else None
 
-        self.text_label.setText(f"{track.track_name}({track.duration}) \nArtist: {track.artist_name} \nAlbum: {track.album_name}({track.release_year})")
+        self.text_label.setText(f"{track.track_name} ({track.duration}) \n{track.artist_name} \n{track.album_name} ({track.release_year})")
         self.update()
 
     def paintEvent(self, event):
