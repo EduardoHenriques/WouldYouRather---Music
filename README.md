@@ -1,5 +1,5 @@
 # WouldYouRather---Music
-WYR Game with Songs from various artists using the Spotify API. Has two a gamemodes - Normal and Endless - to find new songs to rank or select a set from any album of any artist. 
+WYR Game with Songs from various artists using the Spotify API
 
 ## Requirements
 - Python 3.12.X

@@ -33,8 +33,14 @@ from PySide6.QtWidgets import (
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
+        # Set icon for application
+        app_icon = QIcon("Icons/AppIcon.ico")
+        self.setWindowIcon(app_icon)
+        QApplication.setWindowIcon(app_icon)
+        # Set Window Title
+        self.setWindowTitle("Would You Rather - Music")
         
-        self.setWindowTitle("App")
+
         
         # Variables - Settings/Stored Data
         self.SPOTIFY_API = SpotifyAPI("778df54a97194827a62157c7f785a958", "0129d5e5fabb4c94948d27f3cfa839ad")
