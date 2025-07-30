@@ -1,12 +1,13 @@
 from PySide6.QtGui import QPixmap, QMouseEvent, QPainter, QBrush, QColor
 from PySide6.QtWidgets import QVBoxLayout, QLabel, QWidget
-from PySide6.QtCore import Qt, Signal
+from PySide6.QtCore import Qt, Signal, QSize
 
 from dataclasses import dataclass
 from outlined_label import OutlinedLabel
 
 @dataclass
 class TrackInfo:
+    track_id: str
     track_name: str
     artist_name: str
     album_name: str
@@ -30,28 +31,9 @@ class TrackInfo:
             except Exception as e:
                 print(f"Error loading image for {self.track_name}: {e}")
         return False
-                
+            
 
-class ClickableTrackWidget(QWidget):
-    clicked = Signal()  # emits when the widget is clicked
 
-    def __init__(self):
-        super().__init__()
-        self.layout = QVBoxLayout()
-        self.setLayout(self.layout)
-
-        self.image_label = QLabel()
-        self.image_label.setAlignment(Qt.AlignCenter)
-        self.image_label.setStyleSheet("border: 2px solid transparent;")
-        self.image_label.setCursor(Qt.PointingHandCursor)
-
-        self.info_label = QLabel()
-        self.info_label.setAlignment(Qt.AlignCenter)
-        self.info_label.setWordWrap(True)
-        self.info_label.setStyleSheet("font-size: 16px; margin-top: 10px;")
-
-        self.layout.addWidget(self.image_label, stretch=8)
-        self.layout.addWidget(self.info_label, stretch=1)
 
 class ClickableTrackWidget(QWidget):
     clicked = Signal()
@@ -61,6 +43,8 @@ class ClickableTrackWidget(QWidget):
         self.track_info = None
         self.background_pixmap = None
         self.hovered = False  # New flag for hover effect
+        self.hover_effect_enabled = True  # Control hover effect
+        self.clickable = True  # Control clickability
 
         self.setCursor(Qt.PointingHandCursor)
         self.setStyleSheet("border: none;")
@@ -81,6 +65,31 @@ class ClickableTrackWidget(QWidget):
         self.text_label.setAttribute(Qt.WA_TranslucentBackground)
         self.text_label.setAttribute(Qt.WA_TransparentForMouseEvents)  # Clicks go through the label
 
+    def sizeHint(self):
+        """Return the preferred size (square)"""
+        return QSize(400, 400)  # Default square size
+
+    def heightForWidth(self, width):
+        """Return height that maintains 1:1 aspect ratio"""
+        return width
+
+    def hasHeightForWidth(self):
+        """Enable height-for-width geometry management"""
+        return True
+
+    def set_hover_effect(self, enabled):
+        """Enable or disable the hover effect"""
+        self.hover_effect_enabled = enabled
+
+    def set_clickable(self, enabled):
+        """Enable or disable clickability"""
+        self.clickable = enabled
+        # Update cursor based on clickability
+        if enabled:
+            self.setCursor(Qt.PointingHandCursor)
+        else:
+            self.setCursor(Qt.ArrowCursor)
+
     def update_track(self, track):
         self.track_info = track
         if track.image_pixmap is None:
@@ -96,16 +105,17 @@ class ClickableTrackWidget(QWidget):
         widget_rect = self.rect()
 
         if self.background_pixmap:
+            # Keep aspect ratio when scaling the image
             scaled_pixmap = self.background_pixmap.scaled(
-    widget_rect.size(),
-    Qt.IgnoreAspectRatio,
-    Qt.SmoothTransformation
-)
+                widget_rect.size(),
+                Qt.KeepAspectRatio,  # Changed from IgnoreAspectRatio
+                Qt.SmoothTransformation
+            )
             x = (widget_rect.width() - scaled_pixmap.width()) // 2
             y = (widget_rect.height() - scaled_pixmap.height()) // 2
             painter.drawPixmap(x, y, scaled_pixmap)
 
-            if self.hovered:
+            if self.hovered and self.hover_effect_enabled:
                 painter.fillRect(widget_rect, QColor(0, 0, 0, 50))  # slight dark overlay on hover
         else:
             painter.fillRect(widget_rect, Qt.black)
@@ -113,21 +123,30 @@ class ClickableTrackWidget(QWidget):
         super().paintEvent(event)
 
     def resizeEvent(self, event):
-        """Place the label at the bottom 25% of the widget"""
-        label_height = int(self.height() * 0.25)
-        self.text_label.setGeometry(0, self.height() - label_height, self.width(), label_height)
+        """Place the label at the bottom 25% and adjust font size proportionally"""
+        w, h = self.width(), self.height()
+        label_height = int(h * 0.25)
+        self.text_label.setGeometry(0, h - label_height, w, label_height)
+    
+        # Adjust font size based on height
+        font = self.text_label.font()
+        font.setPointSizeF(h * 0.05)  # 5% of height
+        self.text_label.setFont(font)
+    
         super().resizeEvent(event)
 
     def enterEvent(self, event):
-        self.hovered = True
-        self.update()
+        if self.hover_effect_enabled:
+            self.hovered = True
+            self.update()
         super().enterEvent(event)
 
     def leaveEvent(self, event):
-        self.hovered = False
-        self.update()
+        if self.hover_effect_enabled:
+            self.hovered = False
+            self.update()
         super().leaveEvent(event)
 
     def mousePressEvent(self, event: QMouseEvent):
-        if event.button() == Qt.LeftButton:
+        if event.button() == Qt.LeftButton and self.clickable:
             self.clicked.emit()

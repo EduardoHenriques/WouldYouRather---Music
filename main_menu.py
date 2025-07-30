@@ -122,34 +122,31 @@ class MainWindow(QMainWindow):
     
     def start_game(self):
         """Start a normal game with the selected tracks or an endless game"""
-        
-        # Endless Mode
+    
         if self.endless_mode.isChecked():
+            # ✅ Endless Mode: Create game with 3 random tracks
             self.game_window = GameWindow(
-                selected_items=[],
+                selected_items=[self.SPOTIFY_API.endless_mode() for _ in range(3)],
                 spotify_api=self.SPOTIFY_API,
-                return_to_main_callback=self.show_main_window  
+                return_to_main_callback=self.show_main_window
             )
             self.game_window.show()
             self.close()
-            
+            return  # ✅ Prevent execution of normal mode logic
+    
+        # ✅ Normal Mode
+        print("Normal Gaming")
         selected_items = self.get_selected_items()
-        if not selected_items:
-            QMessageBox.warning(self, "No Selection", 
-                              "Please select at least 2 tracks to start the game!")
+    
+        if not selected_items or len(selected_items) < 2:
+            QMessageBox.warning(self, "No Selection",
+                                "Please select at least 2 tracks to start the game!")
             return
-        
-        if len(selected_items) < 2:
-            QMessageBox.warning(self, "Not Enough Items", 
-                              "Please select at least 2 tracks to start the game!")
-            return
-        
-
-        # Normal Mode
+    
         self.game_window = GameWindow(
             selected_items=selected_items,
             spotify_api=None,
-            return_to_main_callback=self.show_main_window  
+            return_to_main_callback=self.show_main_window
         )
         self.game_window.show()
         self.close()
@@ -173,7 +170,7 @@ class MainWindow(QMainWindow):
                 album_item = artist_item.child(j)
                 album_name = album_item.text(0)
                 album_year = album_item.text(1)
-                cover_url = album_item.data(0, Qt.UserRole)  # <- stored earlier
+                cover_url = album_item.data(0, Qt.UserRole) 
 
                 # Iterate through tracks
                 for k in range(album_item.childCount()):
@@ -185,6 +182,7 @@ class MainWindow(QMainWindow):
 
                         selected_items.append(
                         TrackInfo(
+                            track_id=None,
                             track_name=track_name,
                             artist_name=artist_name,
                             album_name=album_name,
