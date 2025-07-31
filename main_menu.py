@@ -45,7 +45,6 @@ class MainWindow(QMainWindow):
         # Variables - Settings/Stored Data
         self.SPOTIFY_API = SpotifyAPI("778df54a97194827a62157c7f785a958", "0129d5e5fabb4c94948d27f3cfa839ad")
         self.ALL_ALBUMS = False                              # Include all albums from the artist
-                                                            # TODO: Class that stores an artist, their selected albums and unique songs
         
         self.setMinimumSize(QSize(400, 300))                # Minimum Size
         self.resize(800, 600)                               # Default Size

@@ -362,7 +362,6 @@ class SpotifyAPI:
         """Check if queue has songs ready"""
         return not self.song_queue.empty()
     
-    # NEW: Clean shutdown method
     def shutdown(self):
         """Clean shutdown of background generation"""
         print("🛑 Shutting down background generation...")

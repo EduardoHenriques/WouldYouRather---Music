@@ -318,6 +318,7 @@ class GameWindow(QMainWindow):
             self.start_new_round()
         
     def go_back_to_main(self):
-        self.api.shutdown()
+        if self.api:
+            self.api.shutdown()
         self.close()
         self.return_to_main_callback()
